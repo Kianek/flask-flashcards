@@ -56,10 +56,6 @@ class CardCollection(Resource):
 
 # This class handles operations in aggregate
 class CardCollectionList(Resource):
-    parser = init_parser()
-    parser.add_argument('subject', type=str, required=True,
-                        help='A subject is required')
-
     # /collections
     # Get all of the current user's flash card collections.
     @jwt_required()
