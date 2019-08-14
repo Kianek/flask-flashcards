@@ -45,8 +45,8 @@ class CardCollection(Resource):
     # Delete a single collection.
     @jwt_required()
     def delete(self, col_id):
-        user_id = current_identity.id
-        collection = CardCollectionModel.find_by_id(user_id, col_id)
+        collection = CardCollectionModel.find_by_id(
+            current_identity.id, col_id)
 
         if collection:
             collection.delete_from_db()
@@ -64,9 +64,8 @@ class CardCollectionList(Resource):
     # Get all of the current user's flash card collections.
     @jwt_required()
     def get(self):
-        user_id = current_identity.id
         collections = CardCollectionModel.query.filter_by(
-            user_id=user_id).all()
+            user_id=current_identity.id).all()
 
         if collections:
             return {'collections': [collection.json() for collection in collections]}
@@ -81,9 +80,8 @@ class CardCollectionList(Resource):
         parser.add_argument('subject', type=str, required=True,
                             help="A subject is required")
         data = parser.parse_args()
-        user_id = current_identity.id
         collection = CardCollectionModel.find_by_subject(
-            user_id, data['subject'])
+            current_identity.id, data['subject'])
 
         if collection:
             return {'message': 'That subject already exists'}, 400
