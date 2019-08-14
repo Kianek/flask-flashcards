@@ -3,7 +3,8 @@ from flask_bcrypt import Bcrypt
 from flask_jwt import JWT
 from flask_restful import Api, Resource
 
-from resources.cards import Card, CardCollection, CardCollectionList
+from resources.cards import Card
+from resources.cardcollections import CardCollection, CardCollectionList
 from resources.users import UserRegister
 
 from security import authenticate, identity
