@@ -7,6 +7,7 @@ from models.cardcollections import CardCollectionModel
 class CardCollection(Resource):
 
     # /collections/<int:col_id>
+    # Get all collections for the current user.
     @jwt_required()
     def get(self, col_id):
         user_id = current_identity.id
@@ -18,16 +19,16 @@ class CardCollection(Resource):
         return {'message': "Unable to find collection"}, 404
 
     # /collections/<int:col_id> - {string:new_subject}
+    # Update a single flash card.
     @jwt_required()
     def put(self, col_id):
         parser = init_parser()
         parser.add_argument('new_subject', type=str,
                             required=True, help="This field is required")
-
         data = parser.parse_args()
-        user_id = current_identity.id
+
         existing_collection = CardCollectionModel.find_by_id(
-            user_id, col_id)
+            current_identity.id, col_id)
 
         # Ensure that there isn't already a collection by this name
         if existing_collection and existing_collection.subject != data['new_subject']:
@@ -41,6 +42,7 @@ class CardCollection(Resource):
         return {'message': 'Unable to find subject'}, 404
 
     # /collections/<int:col_id>
+    # Delete a single collection.
     @jwt_required()
     def delete(self, col_id):
         user_id = current_identity.id
@@ -59,6 +61,7 @@ class CardCollectionList(Resource):
                         help='A subject is required')
 
     # /collections
+    # Get all of the current user's flash card collections.
     @jwt_required()
     def get(self):
         user_id = current_identity.id
@@ -71,6 +74,7 @@ class CardCollectionList(Resource):
         return {'message': 'Unable to load collections'}, 404
 
     # /collections - {string:subject}
+    # Add a new collection.
     @jwt_required()
     def post(self):
         parser = init_parser()
