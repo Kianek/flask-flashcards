@@ -1,4 +1,4 @@
-from flask_jwt import jwt_required, current_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, reqparse
 from helpers import init_parser
 from models.cardcollections import CardCollectionModel
@@ -8,9 +8,9 @@ class CardCollection(Resource):
 
     # /collections/<int:col_id>
     # Get all collections for the current user.
-    @jwt_required()
+    @jwt_required
     def get(self, col_id):
-        user_id = current_identity.id
+        user_id = get_jwt_identity()
         collection = CardCollectionModel.find_by_id(user_id, col_id)
 
         if collection:
@@ -20,15 +20,16 @@ class CardCollection(Resource):
 
     # /collections/<int:col_id> - {string:new_subject}
     # Update a single flash card.
-    @jwt_required()
+    @jwt_required
     def put(self, col_id):
         parser = init_parser()
         parser.add_argument('new_subject', type=str,
                             required=True, help="This field is required")
         data = parser.parse_args()
 
+        user_id = get_jwt_identity()
         existing_collection = CardCollectionModel.find_by_id(
-            current_identity.id, col_id)
+            user_id, col_id)
 
         # Ensure that there isn't already a collection by this name
         if existing_collection and existing_collection.subject != data['new_subject']:
@@ -43,10 +44,11 @@ class CardCollection(Resource):
 
     # /collections/<int:col_id>
     # Delete a single collection.
-    @jwt_required()
+    @jwt_required
     def delete(self, col_id):
+        user_id = get_jwt_identity()
         collection = CardCollectionModel.find_by_id(
-            current_identity.id, col_id)
+            user_id, col_id)
 
         if collection:
             collection.delete_from_db()
@@ -58,10 +60,11 @@ class CardCollection(Resource):
 class CardCollectionList(Resource):
     # /collections
     # Get all of the current user's flash card collections.
-    @jwt_required()
+    @jwt_required
     def get(self):
+        user_id = get_jwt_identity()
         collections = CardCollectionModel.query.filter_by(
-            user_id=current_identity.id).all()
+            user_id=user_id).all()
 
         if collections:
             return {'collections': [collection.json() for collection in collections]}
@@ -70,19 +73,21 @@ class CardCollectionList(Resource):
 
     # /collections - {string:subject}
     # Add a new collection.
-    @jwt_required()
+    @jwt_required
     def post(self):
         parser = init_parser()
         parser.add_argument('subject', type=str, required=True,
                             help="A subject is required")
         data = parser.parse_args()
+
+        user_id = get_jwt_identity()
         collection = CardCollectionModel.find_by_subject(
-            current_identity.id, data['subject'])
+            user_id, data['subject'])
 
         if collection:
             return {'message': 'That subject already exists'}, 400
 
-        new_collection = CardCollectionModel(current_identity.id, **data)
+        new_collection = CardCollectionModel(user_id, **data)
         new_collection.save_to_db()
 
         return new_collection.json()

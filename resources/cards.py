@@ -1,4 +1,4 @@
-from flask_jwt import jwt_required, current_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restful import Resource, reqparse
 from helpers import init_parser
 from models.cards import CardModel
@@ -6,9 +6,9 @@ from models.cardcollections import CardCollectionModel
 
 
 class Card(Resource):
-    @jwt_required()
+    @jwt_required
     def get(self, col_id, card_id):
-        user_id = current_identity.id
+        user_id = get_jwt_identity()
         collection = CardCollectionModel.find_by_id(user_id, col_id)
 
         if collection:
@@ -18,7 +18,7 @@ class Card(Resource):
 
         return {'message': 'Unable to find card'}, 404
 
-    @jwt_required()
+    @jwt_required
     def post(self, col_id):
         parser = init_parser()
         parser.add_argument('question', type=str, required=True,
@@ -28,7 +28,7 @@ class Card(Resource):
         parser.add_argument('hint', type=str, required=True,
                             help="Hint is required")
 
-        user_id = current_identity.id
+        user_id = get_jwt_identity()
         collection = CardCollectionModel.find_by_id(user_id, col_id)
 
         if collection is None:
@@ -45,7 +45,7 @@ class Card(Resource):
 
         return new_card.json()
 
-    @jwt_required()
+    @jwt_required
     def put(self, col_id, card_id):
         parser = init_parser()
         parser.add_argument('question', type=str)
@@ -53,7 +53,7 @@ class Card(Resource):
         parser.add_argument('hint', type=str)
         parser.add_argument('learned', type=bool)
 
-        user_id = current_identity.id
+        user_id = get_jwt_identity()
         collection = CardCollectionModel.find_by_id(user_id, col_id)
 
         for card in collection.cards:
@@ -63,14 +63,17 @@ class Card(Resource):
                 card.answer = data['answer']
                 card.hint = data['hint']
                 card.learned = data['learned']
+
+                card.save_to_db()
                 return card.json()
 
         return {'message': 'Unable to find card to update'}, 404
 
-    @jwt_required()
+    @jwt_required
     def delete(self, col_id, card_id):
-        user_id = current_identity.id
-        collection = CardCollectionModel.find_by_id(user_id, col_id)
+        user_id = get_jwt_identity()
+        collection = CardCollectionModel.find_by_id(
+            user_id, col_id)
 
         if collection:
             # Load the cards
