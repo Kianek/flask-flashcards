@@ -1,13 +1,11 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
-from flask_jwt import JWT
+from flask_jwt_extended import JWTManager
 from flask_restful import Api, Resource
 
 from resources.cards import Card
 from resources.cardcollections import CardCollection, CardCollectionList
-from resources.users import UserRegister
-
-from security import authenticate, identity
+from resources.users import UserRegister, UserLogin
 
 app = Flask(__name__, instance_relative_config=True)
 flask_bcrypt = Bcrypt(app)
@@ -29,14 +27,13 @@ class HelloWorld(Resource):
 
 api.add_resource(HelloWorld, "/test")
 
-# A sign in is required to create resources in a user's account
-jwt = JWT(app, authenticate, identity)
+jwt = JWTManager(app)
 
 # Routes
+api.add_resource(UserLogin, '/login')
 api.add_resource(UserRegister, '/register')
 api.add_resource(CardCollection, '/collections/<int:col_id>')
 api.add_resource(CardCollectionList, '/collections')
-# api.add_resource(Card, '/collections/<string:subject>/cards')
 api.add_resource(Card, '/collections/<int:col_id>/cards/<int:card_id>',
                  '/collections/<col_id>/cards')
 
