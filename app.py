@@ -31,7 +31,7 @@ jwt = JWTManager(app)
 
 # Routes
 api.add_resource(UserLogin, '/login')
-api.add_resource(UserRegister, '/register')
+api.add_resource(UserRegister, '/register', '/delete')
 api.add_resource(CardCollection, '/collections/<int:col_id>')
 api.add_resource(CardCollectionList, '/collections')
 api.add_resource(Card, '/collections/<int:col_id>/cards/<int:card_id>',
