@@ -1,5 +1,4 @@
 from db import db
-import os
 
 from flask import Flask
 from flask_bcrypt import Bcrypt
@@ -40,9 +39,8 @@ db.init_app(app)
 
 if __name__ == '__main__':
 
-    if app.config['DEBUG']:
-        @app.before_first_request
-        def create_tables():
-            db.create_all()
+    @app.before_first_request
+    def create_tables():
+        db.create_all()
 
     app.run()
