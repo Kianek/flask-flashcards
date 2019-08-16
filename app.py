@@ -1,3 +1,6 @@
+from db import db
+import os
+
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
@@ -7,15 +10,11 @@ from resources.cards import Card
 from resources.cardcollections import CardCollection, CardCollectionList
 from resources.users import UserRegister, UserLogin
 
-app = Flask(__name__, instance_relative_config=True)
+app = Flask(__name__)
+app.config.from_pyfile('settings.py')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 flask_bcrypt = Bcrypt(app)
-app.config.from_pyfile('config.py')
 api = Api(app)
-
-
-@app.before_first_request
-def create_tables():
-    db.create_all()
 
 # Sanity check
 
@@ -37,7 +36,13 @@ api.add_resource(CardCollectionList, '/collections')
 api.add_resource(Card, '/collections/<int:col_id>/cards/<int:card_id>',
                  '/collections/<col_id>/cards')
 
+db.init_app(app)
+
 if __name__ == '__main__':
-    from db import db
-    db.init_app(app)
+
+    if app.config['DEBUG']:
+        @app.before_first_request
+        def create_tables():
+            db.create_all()
+
     app.run()
