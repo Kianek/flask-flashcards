@@ -20,3 +20,4 @@ pytz==2019.2
 six==1.12.0
 SQLAlchemy==1.3.6
 Werkzeug==0.15.5
+psycopg2
