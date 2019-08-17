@@ -1,7 +1,6 @@
-from db import db
-
 from flask import Flask
 from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_restful import Api, Resource
 
@@ -10,6 +9,7 @@ from resources.cardcollections import CardCollection, CardCollectionList
 from resources.users import UserRegister, UserLogin
 
 app = Flask(__name__)
+db = SQLAlchemy(app)
 app.config.from_pyfile('settings.py')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 flask_bcrypt = Bcrypt(app)
