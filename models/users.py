@@ -11,7 +11,7 @@ class UserModel(db.Model):
 
     email = db.Column(db.String(80))
 
-    password_hash = db.Column(db.String(80))
+    password_hash = db.Column(db.String(256))
 
     #  Relationships
     collections = db.relationship("CardCollectionModel", back_populates="user")
