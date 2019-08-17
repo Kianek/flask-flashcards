@@ -11,4 +11,4 @@ def init_parser():
 def hash_password(password):
     from app import flask_bcrypt
 
-    return flask_bcrypt.generate_password_hash(password)
+    return flask_bcrypt.generate_password_hash(password).decode('utf-8')
